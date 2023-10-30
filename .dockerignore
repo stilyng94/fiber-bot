@@ -111,7 +111,7 @@ meili_data/
 *.air.toml
 **/build
 tmp/
-bin
+bin/
 **/dist
 **/node_modules
 **/tmp

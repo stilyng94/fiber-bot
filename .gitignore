@@ -24,7 +24,7 @@ go.work
 *.air.toml
 **/build
 tmp/
-bin
+bin/
 **/dist
 **/node_modules
 **/tmp
@@ -37,7 +37,7 @@ vite.config.ts.*
 /.pnp
 .pnp.js
 .DS_Store
-logs
+logs/
 *.log
 *.tsbuildinfo
 .eslintcache
