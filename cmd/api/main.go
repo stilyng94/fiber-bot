@@ -11,13 +11,12 @@ import (
 
 	"log/slog"
 
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/fiber-bot/bootstraps"
 	"github.com/fiber-bot/cmd/frontend"
 	"github.com/fiber-bot/config"
 	"github.com/fiber-bot/internal"
 	"github.com/fiber-bot/models"
-	"github.com/fiber-bot/tele_bot"
+	"github.com/fiber-bot/tgbot"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -57,15 +56,10 @@ func main() {
 
 	app := initApp(envConfig, db)
 
-	bot, botUpdater, err := tele_bot.ConnectBot(envConfig, logger, db, false)
+	bot, err := tgbot.ConfigBot(logger, envConfig, db)
 	if err == nil {
 		go func() {
-			err = botUpdater.StartPolling(bot, &ext.PollingOpts{DropPendingUpdates: true})
-			if err != nil {
-				panic("failed to start polling: " + err.Error())
-			}
-
-			botUpdater.Idle()
+			bot.Start(context.Background())
 		}()
 	}
 
@@ -74,9 +68,9 @@ func main() {
 
 	go func() {
 		<-signalCtx.Done()
-		_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err := botUpdater.Stop(); err != nil {
+		if _, err := bot.Close(ctx); err != nil {
 			logger.Error("Bot Shutdown", slog.String("error", err.Error()))
 		}
 		if err := app.ShutdownWithContext(signalCtx); err != nil {

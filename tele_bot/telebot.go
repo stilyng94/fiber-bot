@@ -73,15 +73,11 @@ func ConnectBot(envConfig config.EnvConfig, logger *slog.Logger, db *bun.DB, off
 	logger.Info("BOT up and running")
 	dispatcher := updater.Dispatcher
 	dispatcher.AddHandler(handlers.NewCommand(gotgbot.UpdateTypePreCheckoutQuery, onCheckout))
-	dispatcher.AddHandler(handlers.NewMessage(message.Equal(gotgbot.UpdateTypePreCheckoutQuery), onCheckout))
 	dispatcher.AddHandler(handlers.NewCommand("start", func(b *gotgbot.Bot, ctx *ext.Context) error {
 		return onStart(b, ctx, envConfig.AppUrl)
 	}))
 	dispatcher.AddHandler(handlers.NewCommand("help", onHelp))
 	dispatcher.AddHandler(handlers.NewCommand("successful_payment", onPayment))
-	dispatcher.AddHandler(handlers.NewCommand("payment", onPayment))
-	dispatcher.AddHandler(handlers.NewMessage(message.Equal("successful_payment"), onPayment))
-
 	dispatcher.AddHandler(handlers.NewConversation(
 		[]ext.Handler{handlers.NewCommand("uploadProduct", func(b *gotgbot.Bot, ctx *ext.Context) error {
 			return initAddProduct(b, ctx, envConfig)
